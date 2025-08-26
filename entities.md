@@ -65,8 +65,49 @@ Earthaccess/Earthdata:
     There are a whole lot of datasets there ... we'll need to figure out what will qualify as InVEST datasets
 - [ ] how much processing will be needed on these relevant layers?
 
+I'm running their demo featured in the earthaccess package docs to see how it works.
+BOY is search slow.
+
+OK maybe it's a little faster now.
+Jupyter widgets built in are really pretty nice.
+The demo layer (ATL08) resulted in a few H5 files downloaded.
+
+Looks like their docs can use a little work, too.  Basic functionality is there, but even the earthdata.search_data() entrypoint isn't described.
+
+If we use this in an abstraction layer, we will need to map different `short_name`s of datasets on EarthData to the various InVEST-centric data types that we have.
+
+Looks like the `search_data()` function expects that you already know the dataset you want.  This is incongruous with the basic premise of InVEST that you will want to look for _some_ dataset of a type (e.g. LULC), but might not know what to use or look for.
+
+Therefore, the `search_data()` function is useful when you already know what you want and you just need to download it from EarthData.
+
+So what are our options here?
+* Required: we need to decide which datasets on EarthData map to data we want people to be able to use through the abstraction layer.
+* Choice: how to handle search
+    * Option: we use EarthData's search, authenticated with the user's API key
+    * Option: we preprocess all tiles from EarthData so that we know which bboxes map to which tiles so that we can implement our own search.
+* Choice: how to provide data
+    * Option: We use their EarthData API key to access the datasets where they are hosted
+        * Depending on the data formats a tile/layer is stored in, we may need to help tile the layer appropriately.
+    * Option: Since NASA data is generally open-access, we could just reprocess and host all the layers ourself on our data hub
+
+
 VARIOUS STAC
--
+To me, STAC feels like it's got all the spatial information needed to process data, but not all of the information needed about what datasets are in the location.
+I guess I'm assuming that a single STAC catalog will have information about only one dataset, but that there might be a whole lot of tiles (e.g. for LANDSAT).
+If that's the case, then we would be wise to point to the STAC itself and support operations for tiling the layer.
+
+
+Use cases:
+
+--> Searching for data for InVEST when you don't really know what to use
+    --> We want to be able to offer a range of available datasets from various providers.
+    --> We already know what the type of dataset we're looking for is going to be
+    --> We already know how to transform (if needed) the dataset into a form that can be consumed by InVEST
+        --> There may be some tiling/processing needed, along the lines of assembling local DEM from SRTM tiles.
+
+--> Searching for data when you know exactly what you want to use, you just don't have it available locally.
+    --> We should be able to use a specific dataset from one of these providers, even if it doesn't obviously match a known type or has not been verified as compatible by NatCappers
+        --> maybe we provide a warning or something that veracity is up to the user
 
 
 
