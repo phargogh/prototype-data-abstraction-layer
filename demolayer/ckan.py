@@ -52,8 +52,8 @@ class InVESTDataset(object):
         gmm_data = None
         for resource in self._ckan_data['resources']:
             if resource['description'] == 'Geometamaker YML':
-                # TODO: actually load the file, not just the string.
-                gmm_data = yaml.load(resource['url'], Loader=yaml.CLoader)
+                yml_text = requests.get(resource['url']).text
+                gmm_data = yaml.load(yml_text, Loader=yaml.CLoader)
 
         self._gmm_data = gmm_data
 
