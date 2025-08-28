@@ -44,4 +44,9 @@ perhaps custom semantic search criteria depending on how each resource
 categorizes their datasets.
 
 This work is _not_ intended to take the place of necessary data processing and
-hosting efforts that we have going into the data hub.
+hosting efforts that we have going into the data hub.  There remains a need to
+include datasets on there that:
+
+* are specifically built for InVEST and commonly-needed ES analyses
+* are sourced from or derived from layers that we frequently have issues with
+  (e.g. ISRIC's webserver is flaky)
