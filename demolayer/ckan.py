@@ -54,6 +54,7 @@ class InVESTDataset(object):
             if resource['description'] == 'Geometamaker YML':
                 yml_text = requests.get(resource['url']).text
                 gmm_data = yaml.load(yml_text, Loader=yaml.CLoader)
+                assert isinstance(gmm_data, dict)
 
         self._gmm_data = gmm_data
 
