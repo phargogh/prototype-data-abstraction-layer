@@ -50,3 +50,9 @@ include datasets on there that:
 * are specifically built for InVEST and commonly-needed ES analyses
 * are sourced from or derived from layers that we frequently have issues with
   (e.g. ISRIC's webserver is flaky)
+
+
+### Optionally (and lazily) download data found by search
+
+Once datasets have been found, we should be able to procure the parts of the
+data that we need to procure, without downloading the dataset in its entirety.
