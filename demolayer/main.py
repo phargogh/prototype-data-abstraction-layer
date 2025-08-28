@@ -18,8 +18,12 @@ def search():
     #   spatial extent in WGS84 # probably ignore until we fix on ckan
 
     invest_type = request.args['invest_type']
+    bbox = request.args.getlist('bbox', None)  # minx, miny, maxx, maxy
+    if bbox:
+        bbox = [float(coord) for coord in bbox]
 
-    found_data = [dataclasses.asdict(d) for d in ckan.search(invest_type)]
+    found_data = [
+        dataclasses.asdict(d) for d in ckan.search(invest_type, bbox)]
     return json.dumps({
         'catalogs_searched': [ckan.CKAN_API_URL],
         'datasets': found_data,

@@ -1,8 +1,11 @@
+import logging
+
 import commondatamodel
 import requests
 import yaml
 from ckanapi import RemoteCKAN  # mamba install ckanapi
 
+LOGGER = logging.getLogger(__name__)
 CKAN_API_URL = 'https://data.naturalcapitalproject.stanford.edu'
 
 
@@ -67,12 +70,14 @@ class InVESTRaster(InVESTDataset):
         pass
 
 
-def search(invest_type):
+def search(invest_type, bbox=None):
     """Search CKAN for the dataset of the target InVEST type.
 
     Args:
         invest_type (str): The InVEST datatype to search for.
             Case-insensitive.
+        bbox (tuple, list): The bounding box to use, as a 4-tuple of (minx,
+            miny, maxx, maxy).  If ``None``, spatial search will not be used.
 
     Returns:
         ``None``
@@ -80,12 +85,24 @@ def search(invest_type):
     Yields:
         TODO
     """
+    LOGGER.info(
+        f"Searching CKAN with invest_type:{invest_type}; bbox:{bbox}")
     with RemoteCKAN(CKAN_API_URL) as catalog:
         offset = 0
         count = None
         while True:
+            query_string = INVEST_TYPES[invest_type.upper()]
+
+            extras = {}
+            if bbox:
+                extras['ext_bbox'] = ','.join(
+                    (str(coord) for coord in bbox))
+
             result = catalog.action.package_search(
-                start=offset, q=INVEST_TYPES[invest_type.upper()])
+                q=query_string,
+                start=offset,
+                extras=extras,
+            )
             if not count:
                 count = result['count']
             for dataset in result['results']:
