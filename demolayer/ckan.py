@@ -1,12 +1,17 @@
 import logging
 
 import commondatamodel
+import pygeoprocessing
 import requests
 import yaml
 from ckanapi import RemoteCKAN  # mamba install ckanapi
+from osgeo import osr
 
 LOGGER = logging.getLogger(__name__)
 CKAN_API_URL = 'https://data.naturalcapitalproject.stanford.edu'
+WGS84_SRS = osr.SpatialReference()
+WGS84_SRS.ImportFromEPSG(4326)
+WGS84_WKT = WGS84_SRS.ExportToWkt()
 
 
 # Objective: try out working with the CKAN API on our site to get a raster
@@ -44,6 +49,19 @@ assert set(INVEST_TYPES.keys()) == set(
 ROWS_PER_SEARCH = 10
 
 
+def _warp_bbox_to_wgs84(gmm_spatial_dict):
+    if gmm_spatial_dict['crs'] == 'EPSG:4326':
+        bbox = gmm_spatial_dict['bounding_box']
+        return [bbox[attr] for attr in ('xmin', 'ymin', 'xmax', 'ymax')]
+    else:
+        source_srs = osr.SpatialReference()
+        source_srs.SetFromUserInput(gmm_spatial_dict['crs'])
+        projection_wkt = source_srs.ExportToWkt()
+        source_bbox = gmm_spatial_dict['bounding_box']
+        return pygeoprocessing.transform_bounding_box(
+            source_bbox, projection_wkt, WGS84_WKT)
+
+
 class InVESTDataset(object):
     def __init__(self, ckan_object, spatial_filter=None):
         self._ckan_data = ckan_object
@@ -61,13 +79,6 @@ class InVESTDataset(object):
 
         self._gmm_data = gmm_data
 
-
-class InVESTRaster(InVESTDataset):
-    def __init__(self, *args, **kwargs):
-        InVESTDataset.__init__(self, *args, **kwargs)
-
-    def download(block=False):
-        pass
 
 
 def search(invest_type, bbox=None):
@@ -95,8 +106,7 @@ def search(invest_type, bbox=None):
 
             extras = {}
             if bbox:
-                extras['ext_bbox'] = ','.join(
-                    (str(coord) for coord in bbox))
+                extras['ext_bbox'] = ','.join((str(coord) for coord in bbox))
 
             result = catalog.action.package_search(
                 q=query_string,
@@ -106,6 +116,17 @@ def search(invest_type, bbox=None):
             if not count:
                 count = result['count']
             for dataset in result['results']:
+
+                gmm_data = None
+                for resource in dataset['resources']:
+                    if resource['description'] == 'Geometamaker YML':
+                        yml_text = requests.get(resource['url']).text
+                        gmm_data = yaml.load(yml_text, Loader=yaml.CLoader)
+                        assert isinstance(gmm_data, dict)
+
+                if gmm_data:
+                    wgs84_bbox = _warp_bbox_to_wgs84(gmm_data['spatial'])
+
                 yield commondatamodel.RasterLayer(
                     source_catalog_dataset_url=(
                         f'{CKAN_API_URL}/dataset/{dataset["name"]}'),
@@ -118,6 +139,7 @@ def search(invest_type, bbox=None):
                         'url': dataset['license_url'],
                     },
                     description=dataset['notes'],
+                    wgs84_extent=wgs84_bbox,
                 )
                 offset += 1
 

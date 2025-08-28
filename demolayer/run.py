@@ -15,4 +15,7 @@ params = {
 resp = requests.get(
     'http://127.0.0.1:5000/search', params=params)
 resp.raise_for_status()
-pprint.pprint(resp.json())
+data = resp.json()
+print(data['catalogs_searched'])
+for dataset in data['datasets']:
+    print(dataset['name'], dataset['wgs84_extent'])

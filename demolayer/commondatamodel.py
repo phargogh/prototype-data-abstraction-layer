@@ -1,4 +1,5 @@
 import enum
+import typing
 from dataclasses import dataclass
 
 
@@ -15,6 +16,7 @@ class RasterLayer():
     invest_type: InVESTInputType
     license: str
     description: str
+    wgs84_extent: typing.List
 
 
 @dataclass
@@ -24,3 +26,4 @@ class VectorLayer():
     name: str
     license: str
     description: str
+    wgs84_extent: typing.List
