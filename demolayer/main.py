@@ -31,6 +31,7 @@ def search():
     })
 
 
+# We assume that the user might want to know the types we're aware of.
 @app.route('/types')
 def list_types():
     return json.dumps(sorted(commondatamodel.INVEST_TYPES))

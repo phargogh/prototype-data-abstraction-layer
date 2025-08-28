@@ -13,6 +13,11 @@ WGS84_SRS = osr.SpatialReference()
 WGS84_SRS.ImportFromEPSG(4326)
 WGS84_WKT = WGS84_SRS.ExportToWkt()
 
+CATALOG_DATA = {
+    'HOMEPAGE': CKAN_API_URL,
+    'API_KEY_REQUIRED': False,
+}
+
 
 # Objective: try out working with the CKAN API on our site to get a raster
 # layer and also a vector layer of watersheds that has been filtered to a
@@ -77,7 +82,6 @@ class InVESTDataset(object):
                 assert isinstance(gmm_data, dict)
 
         self._gmm_data = gmm_data
-
 
 
 def search(invest_type, bbox=None):
