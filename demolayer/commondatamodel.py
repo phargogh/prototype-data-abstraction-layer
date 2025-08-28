@@ -8,6 +8,10 @@ class InVESTInputType(enum.Enum):
     K_FACTOR = 'soil erodibility'
 
 
+INVEST_TYPES = set(
+    k for k in dir(InVESTInputType) if not k.startswith('_'))
+
+
 @dataclass
 class RasterLayer():
     source_catalog_dataset_url: str

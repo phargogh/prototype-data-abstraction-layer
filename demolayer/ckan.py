@@ -44,8 +44,7 @@ INVEST_TYPES = {
 }
 # Sanity check: make sure the INVEST types above match the enum in the common
 # data model.
-assert set(INVEST_TYPES.keys()) == set(
-    k for k in dir(commondatamodel.InVESTInputType) if not k.startswith('_'))
+assert set(INVEST_TYPES.keys()) == set(commondatamodel.INVEST_TYPES)
 ROWS_PER_SEARCH = 10
 
 

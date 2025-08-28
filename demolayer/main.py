@@ -2,6 +2,7 @@ import dataclasses
 import json
 
 import ckan
+import commondatamodel
 from flask import Flask
 from flask import request
 
@@ -28,6 +29,11 @@ def search():
         'catalogs_searched': [ckan.CKAN_API_URL],
         'datasets': found_data,
     })
+
+
+@app.route('/types')
+def list_types():
+    return json.dumps(sorted(commondatamodel.INVEST_TYPES))
 
 
 @app.route('/download/<ds_id>')
