@@ -31,8 +31,13 @@ CKAN_API_URL = 'https://data.naturalcapitalproject.stanford.edu'
 # map InVEST abstract type to the search query that matches
 INVEST_TYPES = {
     'DEM': 'tags=DEM',
-    'K-FACTOR': 'tags=SOIL+ERODIBILITY',
+    'K_FACTOR': 'tags=SOIL+ERODIBILITY',
+    # 'PRECIP': '',  # We don't yet have precip on the data hub
 }
+# Sanity check: make sure the INVEST types above match the enum in the common
+# data model.
+assert set(INVEST_TYPES.keys()) == set(
+    k for k in dir(commondatamodel.InVESTInputType) if not k.startswith('_'))
 ROWS_PER_SEARCH = 10
 
 
@@ -47,6 +52,7 @@ class InVESTDataset(object):
         gmm_data = None
         for resource in self._ckan_data['resources']:
             if resource['description'] == 'Geometamaker YML':
+                # TODO: actually load the file, not just the string.
                 gmm_data = yaml.load(resource['url'], Loader=yaml.CLoader)
 
         self._gmm_data = gmm_data
